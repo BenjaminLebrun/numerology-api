@@ -1,0 +1,307 @@
+<div class="num-widget-container">
+  <div class="num-card">
+    <h3 class="num-title">Calculateur Numérologique</h3>
+    <p class="num-subtitle">Testez l'API en direct : entrez un prénom et un nom.</p>
+
+    <form id="num-form" class="num-form" onsubmit="event.preventDefault(); lancerCalcul();">
+      <div class="num-input-group">
+        <input type="text" id="num-input" placeholder="Ex : Jean-Luc Dupont" required autocomplete="off" />
+        <button type="submit" id="num-btn">Calculer</button>
+      </div>
+    </form>
+
+    <!-- Message de chargement / Réveil Render -->
+    <div id="num-status" class="num-status" style="display: none;"></div>
+
+    <!-- Zone de résultats -->
+    <div id="num-results" class="num-results" style="display: none;">
+      <div class="num-grid-scores">
+        <div class="num-score-box">
+          <span class="num-score-label">Expression</span>
+          <span class="num-score-val" id="res-expression">-</span>
+          <span class="num-score-sub" id="calc-expression"></span>
+        </div>
+        <div class="num-score-box">
+          <span class="num-score-label">Âme (Voyelles)</span>
+          <span class="num-score-val" id="res-elan">-</span>
+          <span class="num-score-sub" id="calc-elan"></span>
+        </div>
+        <div class="num-score-box">
+          <span class="num-score-label">Personnalité</span>
+          <span class="num-score-val" id="res-moi">-</span>
+          <span class="num-score-sub" id="calc-moi"></span>
+        </div>
+      </div>
+
+      <!-- Table d'inclusion -->
+      <div class="num-table-section">
+        <div class="num-table-header">Table d'Inclusion (<span id="res-total-lettres">0</span> lettres)</div>
+        <div class="num-inclusion-grid" id="res-inclusion-grid"></div>
+        <div class="num-badges">
+          <span class="badge badge-karma">Manquants : <strong id="res-manquants">Aucun</strong></span>
+          <span class="badge badge-force">Dominants : <strong id="res-dominants">Aucun</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .num-widget-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+    color: #111827;
+  }
+
+  .num-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  .num-title {
+    margin: 0 0 6px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .num-subtitle {
+    margin: 0 0 18px 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .num-input-group {
+    display: flex;
+    gap: 10px;
+  }
+
+  .num-input-group input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .num-input-group input:focus {
+    border-color: #2563eb;
+  }
+
+  .num-input-group button {
+    padding: 12px 20px;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .num-input-group button:hover {
+    background: #374151;
+  }
+
+  .num-status {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+
+  .status-loading {
+    background: #f3f4f6;
+    color: #4b5563;
+  }
+
+  .status-error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .num-results {
+    margin-top: 24px;
+    border-top: 1px solid #f3f4f6;
+    padding-top: 20px;
+  }
+
+  .num-grid-scores {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .num-score-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .num-score-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 4px;
+  }
+
+  .num-score-val {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #2563eb;
+  }
+
+  .num-score-sub {
+    display: block;
+    font-size: 0.7rem;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 4px;
+  }
+
+  .num-table-section {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .num-table-header {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .num-inclusion-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 4px;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .grid-cell {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 6px 2px;
+  }
+
+  .grid-num {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    font-weight: 600;
+  }
+
+  .grid-count {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .num-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+
+  .badge-karma {
+    background: #fef2f2;
+    color: #991b1b;
+  }
+
+  .badge-force {
+    background: #ecfdf5;
+    color: #065f46;
+  }
+</style>
+
+<script>
+  // URL de ton API hébergée sur Render (à mettre à jour)
+  const API_BASE_URL = "https://numerology-api-cgr9.onrender.com";
+
+  async function lancerCalcul() {
+    const identite = document.getElementById("num-input").value.trim();
+    const statusBox = document.getElementById("num-status");
+    const resultsBox = document.getElementById("num-results");
+    const btn = document.getElementById("num-btn");
+
+    if (!identite) return;
+
+    // État de chargement
+    btn.disabled = true;
+    resultsBox.style.display = "none";
+    statusBox.style.display = "block";
+    statusBox.className = "num-status status-loading";
+    statusBox.innerHTML = "Calcul en cours... <em>(comptez jusqu'à 40 s si le serveur gratuit Render se réveille)</em>";
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/numerologie?identite=${encodeURIComponent(identite)}`);
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.detail || "Erreur de traitement");
+      }
+
+      const data = await response.json();
+
+      // Injection des résultats
+      document.getElementById("res-expression").textContent = data.expression;
+      document.getElementById("calc-expression").textContent = data.calcul_expression;
+      document.getElementById("res-elan").textContent = data.elan_spirituel;
+      document.getElementById("calc-elan").textContent = data.calcul_elan;
+      document.getElementById("res-moi").textContent = data.moi_intime;
+      document.getElementById("calc-moi").textContent = data.calcul_moi;
+      document.getElementById("res-total-lettres").textContent = data.table_inclusion.total_lettres;
+
+      // Construction de la grille 1 à 9
+      const gridContainer = document.getElementById("res-inclusion-grid");
+      gridContainer.innerHTML = "";
+      for (let i = 1; i <= 9; i++) {
+        const count = data.table_inclusion.grille[i] || 0;
+        gridContainer.innerHTML += `
+          <div class="grid-cell">
+            <div class="grid-num">${i}</div>
+            <div class="grid-count">${count}</div>
+          </div>
+        `;
+      }
+
+      // Nombres manquants et dominants
+      const manquants = data.table_inclusion.manquants;
+      const dominants = data.table_inclusion.dominants;
+      document.getElementById("res-manquants").textContent = manquants.length ? manquants.join(", ") : "Aucun";
+      document.getElementById("res-dominants").textContent = dominants.length ? dominants.join(", ") : "Aucun";
+
+      statusBox.style.display = "none";
+      resultsBox.style.display = "block";
+    } catch (err) {
+      statusBox.className = "num-status status-error";
+      statusBox.textContent = `Erreur : ${err.message}`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
